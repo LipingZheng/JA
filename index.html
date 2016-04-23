@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>JA by LipingZheng</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>JA</h1>
+          <h2></h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/LipingZheng/JA/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/LipingZheng/JA/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/LipingZheng/JA" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h3>
+<a id="judgment-aggregation-rules" class="anchor" href="#judgment-aggregation-rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Judgment Aggregation Rules</h3>
+
+<p>This webpage is about the instances, the experiment results, the generator and the solver for the problem of computing majority-preserving judgment aggreagtion rules.
+Judgment aggregtion is the problem of finding a collective judgment set on a given profile of individual judgment sets. And what we focus on is the winner determination problem of the majority judgment aggregation rules, and we provide the solver for the problem.</p>
+
+<p>We provide a generator for producing the random judgment aggregation instances both complete and incomplete and the solver for computing majority-preserving judgment aggregation rules. The instances we provide are those we use to do our experiment. In our experiment, we use incomplete instances to compute the MSA rule to find out how this rule performs with the instances with different arguments. Notice that you can also use complete instances to do this experiment. And then we provide complete instances for testing the computing time of five majority-preserving judgment aggregation rules, since the MNAC rule need the complete instances.</p>
+
+<p>More details about the problem of judgment aggregation and the experiment can be found in some related papers. </p>
+
+<h3>
+<a id="jagen" class="anchor" href="#jagen" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JAGen</h3>
+
+<p>We provide a generator JAGen for generating random judgment aggregation examples. Use JAGen, we can generate different instances by the arguments we set. The related command options of JAGen are as followings:</p>
+
+<pre><code>-h : display usage instructions
+-c : to generate only complete judgment sets
+-p : the size of preagenda [default:5]
+-a : the total number of atoms [default:6]
+-o : the max number of operators [default:5]
+-j : the number of judgment sets [default:10]
+-conj :the provability of conjunctions [default:0.33]
+-disj :the provability of disjunctions [default:0.33] 
+</code></pre>
+
+<p>The command about calling JAGen is like this:</p>
+
+<pre><code>jagen &lt;filename&gt; [options] 
+</code></pre>
+
+<p>The filename is the name of the instance that we want to generate and is required. The options can be set as you need. If do you not entered the option, JAGen will use the default setting.</p>
+
+<p>The instance we provide contains a preagenda and a profile and just like this: rMJA_5atom_4op_6p_001. In this instance, it uses at most 5 atoms and 4 operators to construct formulas in the preagenda. And the size of the preagenda is 6. And the formulas in the preagenda is constructed randomly, so do the consistent judgment sets in the profile. In rMJA_5atom_4op_6p_001, we first list the formulas in the preagenda. The formulas are just like these</p>
+
+<pre><code>((p5 | p3) | ((p4 | p1) | p2))
+(~p1 | (~p2 | p5))
+~(p1 &amp; (p4 | p3))
+(p3 | p2)
+~p3
+~(p3 | ~p4) 
+</code></pre>
+
+<p>We use operators in { ~, &amp;, |} to construct the formula, and the provablility about the operators are set up by the command options "-conj" and "-disj". Note that ~, &amp; and | means negation, and and or as in proposition logic. The list ends by #.</p>
+
+<p>Then we list the judgment sets like</p>
+
+<pre><code>1 1 1 0 1 *
+</code></pre>
+
+<p>1 means that the judgment of the formula in the preagenda is true, 0 means false, i.e. to choose the corresponding negative one in the judgment set and * means unknow. This is an incomplete judgment aggregation example since we do not entered the option "-c". Notice that the complete one does not contains * in the judgment sets. And the number of the judgment sets is set by the option "-j". This list also ends by #.</p>
+
+<h3>
+<a id="jasolver" class="anchor" href="#jasolver" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>JASolver</h3>
+
+<p>We use JASolver as the solver for computing majority-preserving judgment aggregation rules that we defined in [1].
+JASolver consists of two main part, one is the program ja , and the other is a default slover called dl2asp. ja does preliminary work for dl2asp. And we provide a shell called JASolver.sh as the solver entry. In JASolver.sh, we first call ja to do some translation work and then use dl2asp to compute the rule we choose. At last we deal with the output file of dl2asp to generate the computing result of the instance.
+The related command options of JASolver.sh are as followings :</p>
+
+<pre><code>-f &lt;filename&gt; : input file
+-r &lt;rule&gt; : for choosing calculate rule (msa, mcsa, ra, mwa, mnac)
+-a : to output all winners
+-d : to only output the default theory
+-i &lt;formula&gt; : to test whether the given formula is in all winners 
+</code></pre>
+
+<p>The command about calling JASolver is as following:</p>
+
+<pre><code>JASolver.sh -f &lt;filename&gt; -r &lt;rule&gt; [ -a -d ] [ -i &lt;formula&gt; ] 
+</code></pre>
+
+<p>To use JASolver, filename and rule are required, and other options are optional.And it should pay attentions to the content of the computing file, which must be strictly ordered like the instances we provide, otherwise there will exists some parse errors.</p>
+
+<p>The program ja translates the rule that we choose according to the propositions we define in the paper. And the default theory solver dl2asp translates default theory to the corresponding answer set program. And we implement a new version of dl2asp in order to compute optimal extensions. </p>
+        </section>
+
+        <footer>
+          JA is maintained by <a href="https://github.com/LipingZheng">LipingZheng</a><br>
+          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
